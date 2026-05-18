@@ -1,0 +1,5 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Đánh giá</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
+<h2>Nhập đánh giá sau buổi học</h2><div class="msg err" th:if="${error}" th:text="${error}"></div>
+<form th:action="@{/lecturer/evaluate}" th:object="${evaluationDto}" method="post"><input type="hidden" th:field="*{sessionId}"><label>Đánh giá năng lực</label><textarea th:field="*{competencyReview}" rows="5"></textarea><label>Điểm</label><input type="number" min="0" max="10" th:field="*{score}">
+<h3>Thiết bị/tài liệu cần mượn</h3><div th:each="e,st:${equipments}" class="row"><label><input type="checkbox" name="equipmentIds" th:value="${e.id}" style="width:auto"> <span th:text="${e.name + ' (tồn: ' + e.stockQuantity + ')'}"></span></label><input type="number" name="quantities" min="1" value="1"></div><button>Lưu hồ sơ cố vấn</button></form>
+</div></body></html>

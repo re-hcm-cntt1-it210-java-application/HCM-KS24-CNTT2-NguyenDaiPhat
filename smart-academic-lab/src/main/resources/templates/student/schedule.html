@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/app.css">
+    <title>Đặt lịch</title>
+</head>
+<body>
+    <div class="container">
+        <div th:replace="~{fragments/layout :: nav}"></div>
+        <h2>Đặt lịch cố vấn</h2><div class="msg err" th:if="${error}" th:text="${error}"></div>
+        <form th:action="@{/student/schedule}" th:object="${scheduleRequestDto}" method="post">
+            <div class="row"><div>
+                <label>Khoa/Ngành</label>
+                <select th:field="*{departmentId}">
+                    <option th:each="d:${departments}" th:value="${d.id}" th:text="${d.name}"></option>
+                </select>
+            </div>
+                <div>
+                    <label>Giảng viên</label>
+                    <select th:field="*{lecturerId}">
+                        <option th:each="l:${lecturers}" th:value="${l.id}" th:text="${l.fullName}"></option>
+                    </select>
+                </div>
+            </div>
+            <label>Ngày giờ</label>
+            <input type="datetime-local" th:field="*{startTime}">
+            <button>Đặt lịch</button>
+        </form>
+    </div>
+</body>
+</html>

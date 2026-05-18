@@ -1,0 +1,4 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Xuất kho</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
+<h2>Duyệt yêu cầu mượn thiết bị</h2><div class="msg ok" th:if="${param.success}">Cấp phát thiết bị thành công.</div><div class="msg err" th:if="${param.error}" th:text="${param.error}"></div>
+<table><tr><th>Sinh viên</th><th>Phiếu</th><th>Chi tiết</th><th></th></tr><tr th:each="r:${records}"><td th:text="${r.session.student.fullName}"></td><td th:text="${r.id}"></td><td><span th:each="d:${r.details}" th:text="${d.equipment.name + ' x ' + d.quantity + '; '}"></span></td><td><form th:action="@{|/admin/borrowings/${r.id}/issue|}" method="post"><button>Xác nhận xuất kho</button></form></td></tr></table>
+</div></body></html>

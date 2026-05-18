@@ -1,0 +1,3 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Hồ sơ học tập</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
+<h2>Hồ sơ học tập liên kết</h2><div th:each="h:${histories}" class="card"><b th:text="${#temporals.format(h.startTime,'dd/MM/yyyy HH:mm')}"></b><p>Giảng viên: <span th:text="${h.lecturerName}"></span></p><p>Điểm: <span th:text="${h.score}"></span></p><p>Đánh giá: <span th:text="${h.competencyReview}"></span></p><p>Thiết bị/tài liệu: <span th:text="${#strings.listJoin(h.borrowedItems, ', ')}"></span></p></div>
+</div></body></html>

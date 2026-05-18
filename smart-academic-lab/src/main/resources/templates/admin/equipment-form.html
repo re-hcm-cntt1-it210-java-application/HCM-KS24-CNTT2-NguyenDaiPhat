@@ -1,0 +1,3 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Thiết bị</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
+<h2>Thông tin thiết bị</h2><form th:action="${equipmentDto.id == null} ? @{/admin/equipments} : @{'/admin/equipments/' + ${equipmentDto.id}}" th:object="${equipmentDto}" method="post"><label>Tên</label><input th:field="*{name}"><label>Đơn vị</label><input th:field="*{unit}"><label>Số lượng tồn</label><input type="number" th:field="*{stockQuantity}"><button>Lưu</button></form>
+</div></body></html>

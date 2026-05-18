@@ -1,0 +1,4 @@
+<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Ca tư vấn</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
+<h2>Sinh viên chờ tư vấn</h2><div class="msg ok" th:if="${param.success}">Đã lưu hồ sơ cố vấn thành công.</div>
+<table><tr><th>Sinh viên</th><th>Thời gian</th><th></th></tr><tr th:each="s:${sessions}"><td th:text="${s.student.fullName}"></td><td th:text="${#temporals.format(s.startTime,'dd/MM/yyyy HH:mm')}"></td><td><a class="btn" th:href="@{|/lecturer/sessions/${s.id}/evaluate|}">Nhập đánh giá</a></td></tr></table>
+</div></body></html>
