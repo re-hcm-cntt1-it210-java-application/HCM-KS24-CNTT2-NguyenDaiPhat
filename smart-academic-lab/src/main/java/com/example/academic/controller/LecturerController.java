@@ -5,6 +5,10 @@ import com.example.academic.service.MentoringService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -13,12 +17,22 @@ import java.time.LocalDateTime;
 
 @Controller @RequestMapping("/lecturer")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('LECTURER')")
 public class LecturerController {
   private final MentoringService mentoringService;
   private final EquipmentService equipmentService;
 
   private Long uid(HttpSession s) {
-    return (Long) s.getAttribute("USER_ID");
+    Object sessionUserId = s.getAttribute("USER_ID");
+    if (sessionUserId instanceof Long userId) return userId;
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken jwtAuthentication) {
+      Object claimUserId = jwtAuthentication.getToken().getClaim("userId");
+      if (claimUserId instanceof Number number) return number.longValue();
+    }
+
+    throw new IllegalStateException("Cannot find current user id");
   }
 
   @GetMapping("/sessions") public String sessions(HttpSession session, Model model) {

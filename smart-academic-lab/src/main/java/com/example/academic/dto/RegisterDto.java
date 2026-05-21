@@ -7,23 +7,28 @@ import lombok.Setter;
 
 @Getter @Setter
 public class RegisterDto {
-  @NotBlank(message = "Vui lòng nhập tài khoản")
+  @NotBlank(message = "Vui long nhap tai khoan")
   private String username;
 
-  @NotBlank(message = "Vui lòng nhập mật khẩu")
-  @Size(min = 6, message = "Mật khẩu tối thiểu 6 ký tự")
+  @NotBlank(message = "Vui long nhap mat khau")
+  @Size(min = 6, message = "Mat khau toi thieu 6 ky tu")
   private String password;
 
-  @NotBlank(message = "Vui lòng nhập họ tên")
+  @NotBlank(message = "Vui long nhap ho ten")
   private String fullName;
 
-  @NotBlank(message = "Vui lòng nhập email")
-  @Email(message = "Email không đúng định dạng")
+  @NotBlank(message = "Vui long nhap email")
+  @Email(message = "Email khong dung dinh dang")
   private String email;
 
-  @Pattern(regexp = "^$|^(0\\d{9}|\\+84\\d{9})$", message = "Số điện thoại phải có 10 số bắt đầu bằng 0 hoặc dạng +84")
+  @Pattern(regexp = "^$|^(0\\d{9}|\\+84\\d{9})$", message = "So dien thoai phai co 10 so bat dau bang 0 hoac dang +84")
   private String phone;
 
-  @NotNull(message = "Vui lòng chọn vai trò")
+  @NotNull(message = "Vui long chon vai tro")
   private Role role;
+
+  private Long departmentId;
+
+  @Size(max = 100, message = "Chuyen mon toi da 100 ky tu")
+  private String specialty;
 }

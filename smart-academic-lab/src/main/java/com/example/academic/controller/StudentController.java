@@ -4,6 +4,10 @@ import com.example.academic.service.MentoringService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,10 +16,22 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller @RequestMapping("/student")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('STUDENT')")
 public class StudentController {
   private final MentoringService mentoringService;
 
-  private Long uid(HttpSession s) { return (Long) s.getAttribute("USER_ID"); }
+  private Long uid(HttpSession s) {
+    Object sessionUserId = s.getAttribute("USER_ID");
+    if (sessionUserId instanceof Long userId) return userId;
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken jwtAuthentication) {
+      Object claimUserId = jwtAuthentication.getToken().getClaim("userId");
+      if (claimUserId instanceof Number number) return number.longValue();
+    }
+
+    throw new IllegalStateException("Cannot find current user id");
+  }
 
   @GetMapping("/schedule") public String scheduleForm(Model model) {
     model.addAttribute("scheduleRequestDto", new ScheduleRequestDto());

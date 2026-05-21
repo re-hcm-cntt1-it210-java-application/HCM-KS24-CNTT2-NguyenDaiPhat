@@ -54,6 +54,20 @@
         </select>
         <div class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
       </div>
+
+      <div class="field lecturer-extra">
+        <label for="departmentId">Khoa/ngành</label>
+        <select id="departmentId" th:field="*{departmentId}">
+          <option value="">Chọn khoa/ngành</option>
+          <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"></option>
+        </select>
+      </div>
+
+      <div class="field lecturer-extra">
+        <label for="specialty">Chuyên môn</label>
+        <input id="specialty" th:field="*{specialty}" placeholder="Ví dụ: Java Web">
+        <div class="field-error" th:if="${#fields.hasErrors('specialty')}" th:errors="*{specialty}"></div>
+      </div>
     </div>
 
     <div class="actions">
@@ -62,5 +76,26 @@
     </div>
   </form>
 </main>
+
+<script>
+  const roleSelect = document.getElementById('role');
+  const departmentSelect = document.getElementById('departmentId');
+  const specialtyInput = document.getElementById('specialty');
+  const lecturerFields = Array.from(document.querySelectorAll('.lecturer-extra'));
+
+  function toggleLecturerFields() {
+    const isLecturer = roleSelect.value === 'LECTURER';
+    lecturerFields.forEach((field) => field.hidden = !isLecturer);
+    departmentSelect.disabled = !isLecturer;
+    specialtyInput.disabled = !isLecturer;
+    if (!isLecturer) {
+      departmentSelect.value = '';
+      specialtyInput.value = '';
+    }
+  }
+
+  toggleLecturerFields();
+  roleSelect.addEventListener('change', toggleLecturerFields);
+</script>
 </body>
 </html>

@@ -6,7 +6,11 @@ import com.example.academic.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,13 +19,23 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping("/profile")
 @RequiredArgsConstructor
+@PreAuthorize("isAuthenticated()")
 public class ProfileController {
   private final UserRepository userRepository;
   private final UserMapper userMapper;
   private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
   private Long uid(HttpSession session) {
-    return (Long) session.getAttribute("USER_ID");
+    Object sessionUserId = session.getAttribute("USER_ID");
+    if (sessionUserId instanceof Long userId) return userId;
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken jwtAuthentication) {
+      Object claimUserId = jwtAuthentication.getToken().getClaim("userId");
+      if (claimUserId instanceof Number number) return number.longValue();
+    }
+
+    throw new IllegalStateException("Cannot find current user id");
   }
 
   @GetMapping

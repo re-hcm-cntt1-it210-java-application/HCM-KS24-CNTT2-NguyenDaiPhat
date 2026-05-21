@@ -5,12 +5,14 @@ import com.example.academic.repository.LabRoomTypeRepository;
 import com.example.academic.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller @RequestMapping("/admin") @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
   private final EquipmentService equipmentService;
   private final BorrowingService borrowingService;
