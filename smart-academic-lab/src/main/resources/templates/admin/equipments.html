@@ -1,3 +1,98 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Thiết bị</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
-<h2>Quản lý danh mục thiết bị/tài liệu</h2><p><a class="btn" href="/admin/equipments/new">Thêm thiết bị</a></p><table><tr><th>Tên</th><th>Đơn vị</th><th>Tồn kho</th><th></th></tr><tr th:each="e:${equipments}"><td th:text="${e.name}"></td><td th:text="${e.unit}"></td><td th:text="${e.stockQuantity}"></td><td><a th:href="@{|/admin/equipments/${e.id}/edit|}">Sửa</a><form style="display:inline" th:action="@{|/admin/equipments/${e.id}/delete|}" method="post"><button class="danger">Xóa</button></form></td></tr></table>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Thiết bị</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Quản lý thiết bị</h1>
+      <p class="muted">Thiết bị bị xóa mềm sẽ ngừng cho mượn nhưng lịch sử cũ vẫn giữ nguyên dữ liệu.</p>
+    </div>
+    <a class="btn" th:href="@{/admin/equipments/new}">Thêm thiết bị</a>
+  </section>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>Tên</th>
+        <th>Đơn vị</th>
+        <th>Tồn kho</th>
+        <th>Trạng thái</th>
+        <th class="text-right">Thao tác</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="e : ${equipments}" th:classappend="${e.deleted} ? 'row-muted'">
+        <td th:text="${e.name}"></td>
+        <td th:text="${e.unit}"></td>
+        <td th:text="${e.stockQuantity}"></td>
+        <td>
+          <span class="badge ok-badge" th:if="${!e.deleted}">Đang sử dụng</span>
+          <span class="badge muted-badge" th:if="${e.deleted}">Đã xóa mềm</span>
+        </td>
+        <td class="table-actions">
+          <a class="btn-secondary" th:href="@{|/admin/equipments/${e.id}/edit|}">Sửa</a>
+          <form th:if="${!e.deleted}" class="inline-form" th:action="@{|/admin/equipments/${e.id}/delete|}" method="post">
+            <button class="danger js-soft-delete" type="button" th:attr="data-equipment-name=${e.name}">Xóa mềm</button>
+          </form>
+          <form th:if="${e.deleted}" class="inline-form" th:action="@{|/admin/equipments/${e.id}/restore|}" method="post">
+            <button type="submit">Khôi phục</button>
+          </form>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(equipments)}">
+        <td colspan="5" class="empty-state">Chưa có thiết bị.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<div class="modal-backdrop" id="deleteModal" hidden>
+  <div class="modal">
+    <h2>Xác nhận xóa mềm</h2>
+    <p class="muted">Thiết bị sẽ không còn xuất hiện trong form mượn mới, nhưng dữ liệu lịch sử vẫn được giữ.</p>
+    <p>Bạn muốn xóa mềm <strong id="deleteEquipmentName"></strong>?</p>
+    <div class="actions">
+      <button class="danger" type="button" id="confirmDelete">Xóa mềm</button>
+      <button class="btn-secondary" type="button" id="cancelDelete">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const deleteModal = document.getElementById('deleteModal');
+  const deleteEquipmentName = document.getElementById('deleteEquipmentName');
+  const confirmDelete = document.getElementById('confirmDelete');
+  const cancelDelete = document.getElementById('cancelDelete');
+  let pendingDeleteForm = null;
+
+  document.querySelectorAll('.js-soft-delete').forEach((button) => {
+    button.addEventListener('click', () => {
+      pendingDeleteForm = button.closest('form');
+      deleteEquipmentName.textContent = button.dataset.equipmentName || 'thiết bị này';
+      deleteModal.hidden = false;
+    });
+  });
+
+  confirmDelete.addEventListener('click', () => {
+    if (pendingDeleteForm) {
+      pendingDeleteForm.submit();
+    }
+  });
+
+  cancelDelete.addEventListener('click', () => {
+    pendingDeleteForm = null;
+    deleteModal.hidden = true;
+  });
+</script>
+</body>
+</html>

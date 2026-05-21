@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Dữ liệu nền</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Dữ liệu nền</h1>
+      <p class="muted">Khoa/ngành và loại phòng lab được seed trực tiếp trong database, không thao tác CRUD tại màn hình admin.</p>
+    </div>
+  </section>
+
+  <div class="two-columns">
+    <section class="panel">
+      <h2>Khoa/ngành</h2>
+      <ul class="plain-list">
+        <li th:each="d : ${departments}" th:text="${d.name}"></li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Loại phòng lab</h2>
+      <ul class="plain-list">
+        <li th:each="l : ${labRoomTypes}" th:text="${l.name}"></li>
+      </ul>
+    </section>
+  </div>
+</main>
+</body>
+</html>

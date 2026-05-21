@@ -1,3 +1,52 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Thiết bị</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
-<h2>Thông tin thiết bị</h2><form th:action="${equipmentDto.id == null} ? @{/admin/equipments} : @{'/admin/equipments/' + ${equipmentDto.id}}" th:object="${equipmentDto}" method="post"><label>Tên</label><input th:field="*{name}"><label>Đơn vị</label><input th:field="*{unit}"><label>Số lượng tồn</label><input type="number" th:field="*{stockQuantity}"><button>Lưu</button></form>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Thiết bị</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Thông tin thiết bị</h1>
+      <p class="muted">Cập nhật danh mục thiết bị dùng cho phiếu mượn.</p>
+    </div>
+  </section>
+
+  <form class="panel" th:action="${equipmentDto.id == null} ? @{/admin/equipments} : @{'/admin/equipments/' + ${equipmentDto.id}}" th:object="${equipmentDto}" method="post" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label for="name">Tên thiết bị</label>
+        <input id="name" th:field="*{name}" th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'">
+        <div class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+      </div>
+
+      <div class="field">
+        <label for="unit">Đơn vị</label>
+        <input id="unit" th:field="*{unit}">
+      </div>
+
+      <div class="field">
+        <label for="stockQuantity">Số lượng tồn</label>
+        <input id="stockQuantity" type="number" min="0" th:field="*{stockQuantity}" th:classappend="${#fields.hasErrors('stockQuantity')} ? 'is-invalid'">
+        <div class="field-error" th:if="${#fields.hasErrors('stockQuantity')}" th:errors="*{stockQuantity}"></div>
+      </div>
+
+      <label class="check-line">
+        <input type="checkbox" th:field="*{deleted}">
+        Ngừng sử dụng thiết bị này
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="submit">Lưu</button>
+      <a class="btn-link" th:href="@{/admin/equipments}">Quay lại</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

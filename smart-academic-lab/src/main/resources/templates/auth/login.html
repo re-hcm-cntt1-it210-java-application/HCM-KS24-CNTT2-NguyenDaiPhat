@@ -1,5 +1,36 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Đăng nhập</title></head><body><div class="container">
-<h2>Đăng nhập</h2><div class="msg ok" th:if="${param.registered}">Đăng ký thành công, hãy đăng nhập.</div><div class="msg err" th:if="${error}" th:text="${error}"></div>
-<form th:action="@{/login}" th:object="${loginDto}" method="post"><label>Tài khoản</label><input th:field="*{username}"><label>Mật khẩu</label><input type="password" th:field="*{password}"><button>Đăng nhập</button></form>
-<p>Tài khoản mẫu: student/123456, lecturer/123456, admin/123456</p><a href="/register">Đăng ký</a>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Đăng nhập</title>
+</head>
+<body class="auth-page">
+<main class="auth-card">
+  <h1>Đăng nhập</h1>
+
+  <div class="msg ok" th:if="${param.registered}">Đăng ký thành công, hãy đăng nhập.</div>
+  <div class="msg err" th:if="${error}" th:text="${error}"></div>
+
+  <form th:action="@{/login}" th:object="${loginDto}" method="post" novalidate>
+    <div class="field">
+      <label for="username">Tài khoản</label>
+      <input id="username" th:field="*{username}" th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'">
+      <div class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+    </div>
+
+    <div class="field">
+      <label for="password">Mật khẩu</label>
+      <input id="password" type="password" th:field="*{password}" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'">
+      <div class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+    </div>
+
+    <button type="submit">Đăng nhập</button>
+  </form>
+
+  <p class="muted">Tài khoản mẫu: student/123456, lecturer/123456, lecturer2/123456, admin/123456</p>
+  <a th:href="@{/register}">Tạo tài khoản mới</a>
+</main>
+</body>
+</html>

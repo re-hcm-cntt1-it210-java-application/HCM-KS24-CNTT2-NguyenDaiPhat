@@ -11,14 +11,19 @@ import java.time.LocalDateTime;
 public class MentoringSession {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   @ManyToOne(optional = false)
   private User student;
+
   @ManyToOne(optional = false)
   private User lecturer;
+
   @Column(nullable = false)
   private LocalDateTime startTime;
+
   @Column(nullable = false)
   private LocalDateTime endTime;
+
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private SessionStatus status;

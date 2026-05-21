@@ -2,18 +2,14 @@ package com.example.academic.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 @Entity
-@Table(name = "lecturers")
+@Table(name = "lab_room_types")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class LecturerProfile {
+public class LabRoomType {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(optional = false)
-  private User user;
-
-  @ManyToOne(optional = false)
-  private Department department;
-
-  private String specialty;
+  @Column(nullable = false, unique = true)
+  private String name;
 }

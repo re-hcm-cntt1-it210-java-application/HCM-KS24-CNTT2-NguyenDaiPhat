@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Dashboard Admin</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Dashboard Admin</h1>
+      <p class="muted">Số liệu được tổng hợp trực tiếp từ database bằng truy vấn aggregate.</p>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span class="stat-label">Thiết bị đang được mượn</span>
+      <strong th:text="${totalIssuedEquipmentQuantity}">0</strong>
+      <span class="muted">Tổng số lượng đã xuất kho</span>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-label">Thiết bị chờ cấp phát</span>
+      <strong th:text="${totalWaitingIssueEquipmentQuantity}">0</strong>
+      <span class="muted">Tổng số lượng giảng viên đã đề xuất</span>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-label">Phiếu chờ cấp phát</span>
+      <strong th:text="${waitingIssueRecordCount}">0</strong>
+      <span class="muted">Cần admin xử lý xuất kho</span>
+    </article>
+
+    <article class="stat-card">
+      <span class="stat-label">Ca tư vấn đã hoàn tất</span>
+      <strong th:text="${completedSessionCount}">0</strong>
+      <span class="muted">Dùng để xếp hạng giảng viên</span>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="section-heading">
+        <h2>Top 5 giảng viên có lượt tư vấn nhiều nhất</h2>
+        <span class="muted">COMPLETED sessions</span>
+      </div>
+
+      <div class="bar-chart" th:if="${!#lists.isEmpty(topLecturers)}">
+        <div class="bar-row" th:each="lecturer : ${topLecturers}">
+          <div class="bar-label" th:text="${lecturer.lecturerName}">Giảng viên</div>
+          <div class="bar-track">
+            <div class="bar-fill" th:style="'width:' + ${maxLecturerConsultationCount > 0 ? (lecturer.consultationCount * 100 / maxLecturerConsultationCount) : 0} + '%'"></div>
+          </div>
+          <div class="bar-value" th:text="${lecturer.consultationCount}">0</div>
+        </div>
+      </div>
+
+      <div class="empty-state" th:if="${#lists.isEmpty(topLecturers)}">Chưa có ca tư vấn hoàn tất.</div>
+    </article>
+
+    <article class="panel">
+      <div class="section-heading">
+        <h2>Bảng xếp hạng</h2>
+        <span class="muted">Top 5</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+          <tr>
+            <th>Giảng viên</th>
+            <th class="text-right">Lượt tư vấn</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="lecturer : ${topLecturers}">
+            <td th:text="${lecturer.lecturerName}"></td>
+            <td class="text-right" th:text="${lecturer.consultationCount}"></td>
+          </tr>
+          <tr th:if="${#lists.isEmpty(topLecturers)}">
+            <td colspan="2" class="empty-state">Chưa có dữ liệu.</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+</main>
+</body>
+</html>

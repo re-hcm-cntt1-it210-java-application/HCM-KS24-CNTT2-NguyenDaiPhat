@@ -1,13 +1,32 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><body>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
 <div th:fragment="nav">
-  <nav>
-    <a href="/student/schedule">Sinh viên: Đặt lịch</a>
-    <a href="/student/sessions">Lịch của tôi</a>
-    <a href="/student/history">Lịch sử học tập</a>
-    <a href="/lecturer/sessions">Giảng viên</a>
-    <a href="/admin/equipments">Thiết bị</a>
-    <a href="/admin/borrowings">Xuất kho</a>
-    <form method="post" action="/logout" style="display:inline"><button>Đăng xuất</button></form>
-  </nav><hr/>
+  <nav class="topbar">
+    <a class="brand" th:href="@{/profile}">Smart Academic Lab</a>
+
+    <div class="nav-links">
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'STUDENT'}" th:classappend="${CURRENT_URI == '/student/schedule'} ? 'active'" th:href="@{/student/schedule}">Đặt lịch</a>
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'STUDENT'}" th:classappend="${#strings.startsWith(CURRENT_URI, '/student/sessions')} ? 'active'" th:href="@{/student/sessions}">Lịch của tôi</a>
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'STUDENT'}" th:classappend="${CURRENT_URI == '/student/history'} ? 'active'" th:href="@{/student/history}">Hồ sơ học thuật</a>
+
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'LECTURER'}" th:classappend="${#strings.startsWith(CURRENT_URI, '/lecturer/sessions') or CURRENT_URI == '/lecturer/evaluate'} ? 'active'" th:href="@{/lecturer/sessions}">Ca tư vấn</a>
+
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'ADMIN'}" th:classappend="${CURRENT_URI == '/admin' or CURRENT_URI == '/admin/dashboard'} ? 'active'" th:href="@{/admin/dashboard}">Dashboard</a>
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'ADMIN'}" th:classappend="${#strings.startsWith(CURRENT_URI, '/admin/equipments')} ? 'active'" th:href="@{/admin/equipments}">Thiết bị</a>
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'ADMIN'}" th:classappend="${#strings.startsWith(CURRENT_URI, '/admin/borrowings')} ? 'active'" th:href="@{/admin/borrowings}">Xuất kho</a>
+      <a th:if="${session.ROLE != null and session.ROLE.name() == 'ADMIN'}" th:classappend="${CURRENT_URI == '/admin/foundation-data'} ? 'active'" th:href="@{/admin/foundation-data}">Dữ liệu nền</a>
+
+        <a th:classappend="${CURRENT_URI == '/profile'} ? 'active'" th:href="@{/profile}">Hồ sơ cá nhân</a>
+    </div>
+
+    <div class="user-area">
+      <span th:text="${session.FULL_NAME}">Người dùng</span>
+      <form method="post" th:action="@{/logout}">
+        <button class="btn-secondary" type="submit">Đăng xuất</button>
+      </form>
+    </div>
+  </nav>
 </div>
-</body></html>
+</body>
+</html>

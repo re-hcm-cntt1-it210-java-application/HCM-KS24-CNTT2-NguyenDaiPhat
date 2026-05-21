@@ -1,4 +1,48 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Ca tư vấn</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
-<h2>Sinh viên chờ tư vấn</h2><div class="msg ok" th:if="${param.success}">Đã lưu hồ sơ cố vấn thành công.</div>
-<table><tr><th>Sinh viên</th><th>Thời gian</th><th></th></tr><tr th:each="s:${sessions}"><td th:text="${s.student.fullName}"></td><td th:text="${#temporals.format(s.startTime,'dd/MM/yyyy HH:mm')}"></td><td><a class="btn" th:href="@{|/lecturer/sessions/${s.id}/evaluate|}">Nhập đánh giá</a></td></tr></table>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Ca tư vấn</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Sinh viên chờ tư vấn</h1>
+      <p class="muted">Tiếp nhận ca tư vấn đang ở trạng thái chờ xác nhận.</p>
+    </div>
+  </section>
+
+  <div class="msg ok" th:if="${param.success}">Đã lưu hồ sơ cố vấn thành công.</div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>Sinh viên</th>
+        <th>Thời gian</th>
+        <th class="text-right">Thao tác</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="s : ${sessions}">
+        <td th:text="${s.student.fullName}"></td>
+        <td th:text="${#temporals.format(s.startTime,'dd/MM/yyyy HH:mm') + ' - ' + #temporals.format(s.endTime,'HH:mm')}"></td>
+        <td class="table-actions">
+          <a class="btn" th:unless="${s.endTime.isAfter(now)}" th:href="@{|/lecturer/sessions/${s.id}/evaluate|}">Nhập đánh giá</a>
+          <span class="muted" th:if="${s.endTime.isAfter(now)}">Chưa đến giờ đánh giá</span>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(sessions)}">
+        <td colspan="3" class="empty-state">Không có ca tư vấn chờ xử lý.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

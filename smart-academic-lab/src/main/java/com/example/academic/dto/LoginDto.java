@@ -1,5 +1,14 @@
 package com.example.academic.dto;
+
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+
 @Getter @Setter
-public class LoginDto { @NotBlank private String username; @NotBlank private String password; }
+public class LoginDto {
+  @NotBlank(message = "Vui lòng nhập tài khoản")
+  private String username;
+
+  @NotBlank(message = "Vui lòng nhập mật khẩu")
+  private String password;
+}

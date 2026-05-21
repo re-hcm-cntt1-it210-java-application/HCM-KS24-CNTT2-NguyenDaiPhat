@@ -1,5 +1,142 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Đánh giá</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
-<h2>Nhập đánh giá sau buổi học</h2><div class="msg err" th:if="${error}" th:text="${error}"></div>
-<form th:action="@{/lecturer/evaluate}" th:object="${evaluationDto}" method="post"><input type="hidden" th:field="*{sessionId}"><label>Đánh giá năng lực</label><textarea th:field="*{competencyReview}" rows="5"></textarea><label>Điểm</label><input type="number" min="0" max="10" th:field="*{score}">
-<h3>Thiết bị/tài liệu cần mượn</h3><div th:each="e,st:${equipments}" class="row"><label><input type="checkbox" name="equipmentIds" th:value="${e.id}" style="width:auto"> <span th:text="${e.name + ' (tồn: ' + e.stockQuantity + ')'}"></span></label><input type="number" name="quantities" min="1" value="1"></div><button>Lưu hồ sơ cố vấn</button></form>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Đánh giá</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Nhập đánh giá sau buổi tư vấn</h1>
+      <p class="muted">Lưu đánh giá năng lực và chọn thiết bị/tài liệu cần mượn cho sinh viên.</p>
+    </div>
+  </section>
+
+  <div class="msg err" th:if="${error}" th:text="${error}"></div>
+
+  <form class="panel" id="evaluationForm" th:action="@{/lecturer/evaluate}" th:object="${evaluationDto}" method="post" novalidate>
+    <input type="hidden" th:field="*{sessionId}">
+
+    <div class="field">
+      <label for="competencyReview">Đánh giá năng lực</label>
+      <textarea id="competencyReview" rows="5" th:field="*{competencyReview}" th:classappend="${#fields.hasErrors('competencyReview')} ? 'is-invalid'"></textarea>
+      <div class="field-error" th:if="${#fields.hasErrors('competencyReview')}" th:errors="*{competencyReview}"></div>
+    </div>
+
+    <div class="field narrow-field">
+      <label for="score">Điểm</label>
+      <input id="score" type="number" min="0" max="10" th:field="*{score}" th:classappend="${#fields.hasErrors('score')} ? 'is-invalid'">
+      <div class="field-error" th:if="${#fields.hasErrors('score')}" th:errors="*{score}"></div>
+    </div>
+
+    <section class="equipment-picker">
+      <h2>Thiết bị/tài liệu cần mượn</h2>
+      <p class="muted">Nếu số lượng vượt tồn kho, hệ thống sẽ cảnh báo nhưng vẫn cho gửi yêu cầu để admin xử lý.</p>
+
+      <div class="equipment-row" th:each="e : ${equipments}">
+        <label class="check-line">
+          <input class="equipment-check" type="checkbox" name="equipmentIds" th:value="${e.id}" th:attr="data-stock=${e.stockQuantity},data-name=${e.name}">
+          <span th:text="${e.name}"></span>
+          <span class="muted" th:text="${'(tồn: ' + e.stockQuantity + ')'}"></span>
+        </label>
+        <input class="quantity-input" type="number" name="quantities" min="1" value="1" disabled>
+      </div>
+
+      <div class="empty-state" th:if="${#lists.isEmpty(equipments)}">Không có thiết bị đang sử dụng.</div>
+    </section>
+
+    <div class="actions">
+      <button type="submit">Lưu hồ sơ cố vấn</button>
+      <a class="btn-link" th:href="@{/lecturer/sessions}">Quay lại</a>
+    </div>
+  </form>
+</main>
+
+<div class="modal-backdrop" id="stockModal" hidden>
+  <div class="modal">
+    <h2>Có thể không đủ tồn kho</h2>
+    <p class="muted">Một số thiết bị đang được mượn nhiều hơn số lượng tồn hiện tại. Bạn vẫn có thể gửi yêu cầu để admin kiểm tra hoặc hủy để chỉnh lại.</p>
+    <ul class="plain-list" id="shortageList"></ul>
+    <label class="check-line">
+      <input type="checkbox" id="confirmShortage">
+      Tôi đã kiểm tra cảnh báo và vẫn muốn gửi yêu cầu
+    </label>
+    <div class="actions">
+      <button type="button" id="submitAnyway" disabled>Vẫn gửi</button>
+      <button type="button" class="btn-secondary" id="cancelSubmit">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const evaluationForm = document.getElementById('evaluationForm');
+  const stockModal = document.getElementById('stockModal');
+  const shortageList = document.getElementById('shortageList');
+  const confirmShortage = document.getElementById('confirmShortage');
+  const submitAnyway = document.getElementById('submitAnyway');
+  const cancelSubmit = document.getElementById('cancelSubmit');
+  let shortageAccepted = false;
+
+  document.querySelectorAll('.equipment-row').forEach((row) => {
+    const checkbox = row.querySelector('.equipment-check');
+    const quantity = row.querySelector('.quantity-input');
+
+    checkbox.addEventListener('change', () => {
+      quantity.disabled = !checkbox.checked;
+      if (checkbox.checked && Number(quantity.value) < 1) {
+        quantity.value = 1;
+      }
+    });
+  });
+
+  evaluationForm.addEventListener('submit', (event) => {
+    if (shortageAccepted) return;
+
+    const shortages = [];
+    document.querySelectorAll('.equipment-row').forEach((row) => {
+      const checkbox = row.querySelector('.equipment-check');
+      const quantity = row.querySelector('.quantity-input');
+      if (!checkbox.checked) return;
+
+      const stock = Number(checkbox.dataset.stock);
+      const requested = Number(quantity.value);
+      if (requested > stock) {
+        shortages.push(`${checkbox.dataset.name}: mượn ${requested}, tồn ${stock}`);
+      }
+    });
+
+    if (shortages.length === 0) return;
+
+    event.preventDefault();
+    shortageList.innerHTML = '';
+    shortages.forEach((item) => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      shortageList.appendChild(li);
+    });
+    confirmShortage.checked = false;
+    submitAnyway.disabled = true;
+    stockModal.hidden = false;
+  });
+
+  confirmShortage.addEventListener('change', () => {
+    submitAnyway.disabled = !confirmShortage.checked;
+  });
+
+  submitAnyway.addEventListener('click', () => {
+    shortageAccepted = true;
+    stockModal.hidden = true;
+    evaluationForm.requestSubmit();
+  });
+
+  cancelSubmit.addEventListener('click', () => {
+    stockModal.hidden = true;
+  });
+</script>
+</body>
+</html>

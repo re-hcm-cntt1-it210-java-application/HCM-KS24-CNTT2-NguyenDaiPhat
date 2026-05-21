@@ -4,7 +4,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 @Getter @Setter
 public class ScheduleRequestDto {
-  @NotNull private Long departmentId;
-  @NotNull private Long lecturerId;
-  @NotNull @Future private LocalDateTime startTime;
+  @NotNull(message = "Vui lòng chọn khoa/ngành")
+  private Long departmentId;
+
+  @NotNull(message = "Vui lòng chọn giảng viên")
+  private Long lecturerId;
+
+  @NotNull(message = "Vui lòng chọn ngày giờ")
+  @Future(message = "Không được đặt lịch trong quá khứ")
+  private LocalDateTime startTime;
 }

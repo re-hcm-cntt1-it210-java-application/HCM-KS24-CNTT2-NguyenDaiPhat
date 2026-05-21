@@ -8,10 +8,13 @@ import lombok.*;
 public class BorrowingDetail {
   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   @ManyToOne(optional = false)
   private BorrowingRecord record;
+
   @ManyToOne(optional = false)
   private Equipment equipment;
+
   @Column(nullable = false)
   private Integer quantity;
 }

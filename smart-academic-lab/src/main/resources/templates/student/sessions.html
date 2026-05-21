@@ -1,4 +1,61 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Lịch của tôi</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
-<h2>Lịch của tôi</h2><div class="msg ok" th:if="${param.success}">Đặt lịch thành công.</div><div class="msg ok" th:if="${param.cancelled}">Hủy lịch thành công.</div><div class="msg err" th:if="${param.error}" th:text="${param.error}"></div>
-<table><tr><th>Giảng viên</th><th>Bắt đầu</th><th>Kết thúc</th><th>Trạng thái</th><th></th></tr><tr th:each="s:${sessions}"><td th:text="${s.lecturer.fullName}"></td><td th:text="${#temporals.format(s.startTime,'dd/MM/yyyy HH:mm')}"></td><td th:text="${#temporals.format(s.endTime,'HH:mm')}"></td><td th:text="${s.status}"></td><td><form th:if="${s.status.name()=='PENDING'}" th:action="@{|/student/sessions/${s.id}/cancel|}" method="post"><button class="danger">Hủy</button></form></td></tr></table>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Lịch của tôi</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Lịch của tôi</h1>
+      <p class="muted">Lịch chờ xác nhận có thể hủy trước thời hạn cấu hình của hệ thống.</p>
+    </div>
+  </section>
+
+  <div class="msg ok" th:if="${param.success}">Đặt lịch thành công.</div>
+  <div class="msg ok" th:if="${param.cancelled}">Hủy lịch thành công.</div>
+  <div class="msg err" th:if="${param.error}" th:text="${param.error[0]}"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>Giảng viên</th>
+        <th>Bắt đầu</th>
+        <th>Kết thúc</th>
+        <th>Trạng thái</th>
+        <th class="text-right">Thao tác</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="s : ${sessions}" th:with="borrowStatus=${borrowStatuses[s.id]}">
+        <td th:text="${s.lecturer.fullName}"></td>
+        <td th:text="${#temporals.format(s.startTime,'dd/MM/yyyy HH:mm')}"></td>
+        <td th:text="${#temporals.format(s.endTime,'HH:mm')}"></td>
+        <td>
+          <span class="badge warn-badge" th:if="${s.status.name() == 'PENDING'}">Chờ tư vấn</span>
+          <span class="badge muted-badge" th:if="${s.status.name() == 'CANCELLED'}">Đã hủy</span>
+          <span class="badge ok-badge" th:if="${s.status.name() == 'COMPLETED' and borrowStatus == null}">Đã tư vấn</span>
+          <span class="badge warn-badge" th:if="${s.status.name() == 'COMPLETED' and borrowStatus != null and borrowStatus.name() == 'WAITING_ISSUE'}">Đã tư vấn - chờ cấp phát thiết bị</span>
+          <span class="badge ok-badge" th:if="${s.status.name() == 'COMPLETED' and borrowStatus != null and borrowStatus.name() == 'ISSUED'}">Đã tư vấn - đã cấp phát thiết bị</span>
+        </td>
+        <td class="table-actions">
+          <form th:if="${s.status.name() == 'PENDING'}" class="inline-form" th:action="@{|/student/sessions/${s.id}/cancel|}" method="post">
+            <button class="danger" type="submit">Hủy lịch</button>
+          </form>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(sessions)}">
+        <td colspan="5" class="empty-state">Bạn chưa có lịch cố vấn.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

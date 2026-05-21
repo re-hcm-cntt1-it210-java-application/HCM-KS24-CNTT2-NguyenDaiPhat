@@ -1,32 +1,136 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="/css/app.css">
-    <title>Đặt lịch</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Đặt lịch</title>
 </head>
 <body>
-    <div class="container">
-        <div th:replace="~{fragments/layout :: nav}"></div>
-        <h2>Đặt lịch cố vấn</h2><div class="msg err" th:if="${error}" th:text="${error}"></div>
-        <form th:action="@{/student/schedule}" th:object="${scheduleRequestDto}" method="post">
-            <div class="row"><div>
-                <label>Khoa/Ngành</label>
-                <select th:field="*{departmentId}">
-                    <option th:each="d:${departments}" th:value="${d.id}" th:text="${d.name}"></option>
-                </select>
-            </div>
-                <div>
-                    <label>Giảng viên</label>
-                    <select th:field="*{lecturerId}">
-                        <option th:each="l:${lecturers}" th:value="${l.id}" th:text="${l.fullName}"></option>
-                    </select>
-                </div>
-            </div>
-            <label>Ngày giờ</label>
-            <input type="datetime-local" th:field="*{startTime}">
-            <button>Đặt lịch</button>
-        </form>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Đặt lịch cố vấn</h1>
+      <p class="muted">Chọn khoa/ngành trước, danh sách giảng viên sẽ tự lọc theo khoa/ngành đó.</p>
     </div>
+  </section>
+
+  <div class="msg err" th:if="${error}" th:text="${error}"></div>
+
+  <form class="panel" id="scheduleForm" th:action="@{/student/schedule}" th:object="${scheduleRequestDto}" method="post" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label for="departmentId">Khoa/ngành</label>
+        <select id="departmentId" th:field="*{departmentId}" th:classappend="${#fields.hasErrors('departmentId')} ? 'is-invalid'">
+          <option value="">Chọn khoa/ngành</option>
+          <option th:each="d : ${departments}" th:value="${d.id}" th:text="${d.name}"></option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('departmentId')}" th:errors="*{departmentId}"></div>
+      </div>
+
+      <div class="field">
+        <label for="lecturerId">Giảng viên</label>
+        <select id="lecturerId" th:field="*{lecturerId}" th:classappend="${#fields.hasErrors('lecturerId')} ? 'is-invalid'">
+          <option value="">Chọn giảng viên</option>
+          <option class="lecturer-option"
+                  th:each="lp : ${lecturerProfiles}"
+                  th:value="${lp.user.id}"
+                  th:attr="data-department=${lp.department.id}"
+                  th:text="${lp.user.fullName + ' - ' + lp.specialty}">
+          </option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('lecturerId')}" th:errors="*{lecturerId}"></div>
+      </div>
+
+      <div class="field">
+        <label for="scheduleDate">Ngày</label>
+        <input id="scheduleDate" type="date">
+      </div>
+
+      <div class="field">
+        <label for="scheduleHour">Khung giờ</label>
+        <select id="scheduleHour">
+          <option value="">Chọn khung giờ</option>
+          <option value="07">07:00 - 08:00</option>
+          <option value="08">08:00 - 09:00</option>
+          <option value="09">09:00 - 10:00</option>
+          <option value="10">10:00 - 11:00</option>
+          <option value="11">11:00 - 12:00</option>
+          <option value="13">13:00 - 14:00</option>
+          <option value="14">14:00 - 15:00</option>
+          <option value="15">15:00 - 16:00</option>
+          <option value="16">16:00 - 17:00</option>
+          <option value="17">17:00 - 18:00</option>
+          <option value="18">18:00 - 19:00</option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('startTime')}" th:errors="*{startTime}"></div>
+      </div>
+    </div>
+
+    <input id="startTime" type="hidden" th:field="*{startTime}">
+
+    <div class="actions">
+      <button type="submit">Đặt lịch</button>
+    </div>
+  </form>
+</main>
+
+<script>
+  const departmentSelect = document.getElementById('departmentId');
+  const lecturerSelect = document.getElementById('lecturerId');
+  const lecturerOptions = Array.from(document.querySelectorAll('.lecturer-option'));
+  const dateInput = document.getElementById('scheduleDate');
+  const hourSelect = document.getElementById('scheduleHour');
+  const startTimeInput = document.getElementById('startTime');
+  const scheduleForm = document.getElementById('scheduleForm');
+
+  function filterLecturers() {
+    const departmentId = departmentSelect.value;
+    let selectedStillValid = false;
+
+    lecturerOptions.forEach((option) => {
+      const visible = departmentId && option.dataset.department === departmentId;
+      option.hidden = !visible;
+      option.disabled = !visible;
+      if (visible && option.value === lecturerSelect.value) {
+        selectedStillValid = true;
+      }
+    });
+
+    lecturerSelect.disabled = !departmentId;
+    if (!selectedStillValid) {
+      lecturerSelect.value = '';
+    }
+  }
+
+  function loadCurrentStartTime() {
+    const value = startTimeInput.value;
+    if (!value || value.length < 13) return;
+
+    dateInput.value = value.substring(0, 10);
+    hourSelect.value = value.substring(11, 13);
+  }
+
+  function composeStartTime() {
+    if (dateInput.value && hourSelect.value) {
+      startTimeInput.value = `${dateInput.value}T${hourSelect.value}:00`;
+    } else {
+      startTimeInput.value = '';
+    }
+  }
+
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+  loadCurrentStartTime();
+  filterLecturers();
+  departmentSelect.addEventListener('change', filterLecturers);
+  scheduleForm.addEventListener('submit', composeStartTime);
+</script>
 </body>
 </html>

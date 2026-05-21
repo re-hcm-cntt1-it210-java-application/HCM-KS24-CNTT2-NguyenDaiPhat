@@ -1,4 +1,62 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Xuất kho</title></head><body><div class="container"><div th:replace="~{fragments/layout :: nav}"></div>
-<h2>Duyệt yêu cầu mượn thiết bị</h2><div class="msg ok" th:if="${param.success}">Cấp phát thiết bị thành công.</div><div class="msg err" th:if="${param.error}" th:text="${param.error}"></div>
-<table><tr><th>Sinh viên</th><th>Phiếu</th><th>Chi tiết</th><th></th></tr><tr th:each="r:${records}"><td th:text="${r.session.student.fullName}"></td><td th:text="${r.id}"></td><td><span th:each="d:${r.details}" th:text="${d.equipment.name + ' x ' + d.quantity + '; '}"></span></td><td><form th:action="@{|/admin/borrowings/${r.id}/issue|}" method="post"><button>Xác nhận xuất kho</button></form></td></tr></table>
-</div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Xuất kho</title>
+</head>
+<body>
+<main class="container">
+  <div th:replace="~{fragments/layout :: nav}"></div>
+
+  <section class="page-header">
+    <div>
+      <h1>Duyệt yêu cầu mượn thiết bị</h1>
+      <p class="muted">Kiểm tra tồn kho trước khi xác nhận xuất kho.</p>
+    </div>
+  </section>
+
+  <div class="msg ok" th:if="${param.success}">Cấp phát thiết bị thành công.</div>
+  <div class="msg err" th:if="${param.error}" th:text="${param.error[0]}"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+      <tr>
+        <th>Phiếu</th>
+        <th>Sinh viên</th>
+        <th>Giảng viên</th>
+        <th>Chi tiết</th>
+        <th class="text-right">Thao tác</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="r : ${records}" th:with="hasDeletedEquipment=${!#lists.isEmpty(r.details.?[equipment.deleted == true])}">
+        <td th:text="${'#' + r.id}"></td>
+        <td th:text="${r.session.student.fullName}"></td>
+        <td th:text="${r.session.lecturer.fullName}"></td>
+        <td>
+          <div class="detail-line" th:each="d : ${r.details}">
+            <span th:text="${d.equipment.name + ' x ' + d.quantity}"></span>
+            <span class="muted" th:text="${'(tồn: ' + d.equipment.stockQuantity + ')'}"></span>
+            <span class="badge muted-badge" th:if="${d.equipment.deleted}">Đã xóa mềm</span>
+            <span class="badge warn-badge" th:if="${d.equipment.stockQuantity < d.quantity}">Có thể thiếu tồn kho</span>
+          </div>
+        </td>
+        <td class="table-actions">
+          <form class="inline-form" th:if="${!hasDeletedEquipment}" th:action="@{|/admin/borrowings/${r.id}/issue|}" method="post">
+            <button type="submit">Xác nhận xuất kho</button>
+          </form>
+          <span class="muted" th:if="${hasDeletedEquipment}">Không thể cấp phát</span>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(records)}">
+        <td colspan="5" class="empty-state">Không có phiếu chờ cấp phát.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+</body>
+</html>

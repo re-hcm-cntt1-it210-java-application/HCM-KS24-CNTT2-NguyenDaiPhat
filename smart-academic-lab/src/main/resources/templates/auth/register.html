@@ -1,6 +1,66 @@
-<!doctype html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head><meta charset="utf-8"><link rel="stylesheet" href="/css/app.css"><title>Đăng ký</title></head><body><div class="container">
-<h2>Đăng ký</h2><div class="msg err" th:if="${error}" th:text="${error}"></div>
-<form th:action="@{/register}" th:object="${registerDto}" method="post">
-<label>Tài khoản</label><input th:field="*{username}"><label>Mật khẩu</label><input type="password" th:field="*{password}"><label>Họ tên</label><input th:field="*{fullName}"><label>Email</label><input th:field="*{email}"><label>Điện thoại</label><input th:field="*{phone}">
-<label>Vai trò</label><select th:field="*{role}"><option value="STUDENT">Sinh viên</option><option value="LECTURER">Giảng viên</option><option value="ADMIN">Admin</option></select><button>Đăng ký</button>
-</form><a href="/login">Quay lại</a></div></body></html>
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/css/app.css">
+  <title>Đăng ký</title>
+</head>
+<body class="auth-page">
+<main class="auth-card auth-card-wide">
+  <h1>Đăng ký</h1>
+
+  <div class="msg err" th:if="${error}" th:text="${error}"></div>
+
+  <form th:action="@{/register}" th:object="${registerDto}" method="post" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label for="username">Tài khoản</label>
+        <input id="username" th:field="*{username}" th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'">
+        <div class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+      </div>
+
+      <div class="field">
+        <label for="password">Mật khẩu</label>
+        <input id="password" type="password" th:field="*{password}" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'">
+        <div class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+      </div>
+
+      <div class="field">
+        <label for="fullName">Họ tên</label>
+        <input id="fullName" th:field="*{fullName}" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
+        <div class="field-error" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" th:field="*{email}" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'">
+        <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+      </div>
+
+      <div class="field">
+        <label for="phone">Điện thoại</label>
+        <input id="phone" th:field="*{phone}" th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'" placeholder="Ví dụ: 0912345678">
+        <div class="field-error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+      </div>
+
+      <div class="field">
+        <label for="role">Vai trò</label>
+        <select id="role" th:field="*{role}" th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+          <option value="">Chọn vai trò</option>
+          <option value="STUDENT">Sinh viên</option>
+          <option value="LECTURER">Giảng viên</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+        <div class="field-error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit">Đăng ký</button>
+      <a class="btn-link" th:href="@{/login}">Quay lại đăng nhập</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>
